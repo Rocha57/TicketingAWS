@@ -15,26 +15,25 @@ table_name = 'project3'
 
 input_queue = sqs.get_queue_by_name(QueueName='project3_input')
 output_queue = sqs.get_queue_by_name(QueueName='project3_output')
+payment_queue = sqs.get_queue_by_name(QueueName='project3_payment')
 
 def run():
 	while True:
-		print(".")
 		message = sqs_client.receive_message(
 		    QueueUrl=input_queue.url,
-		    MessageAttributeNames=['Name','Photo'],
+		    MessageAttributeNames=['Photo'],
 		    MaxNumberOfMessages=1,
 		    WaitTimeSeconds=1,
 		)
 		if 'Messages' in message:
 			remove = sqs_client.delete_message(QueueUrl=input_queue.url, ReceiptHandle = message['Messages'][0]['ReceiptHandle'])
-			table_items = client_db.scan(
-		    	TableName=table_name
-			)
+			table_items = client_db.scan(TableName=table_name)
 			name = rekognition(message['Messages'][0]['MessageAttributes']['Photo']['StringValue'], table_items)
 			if name == None:
 				send_message(output_queue, "ardeu", "FAILED")
 			else:
-				send_message(output_queue, name, "SUCCESS")
+				send_message(output_queue, "Welcome "+name, "SUCCESS")
+				send_message(payment_queue, name, "CHECK")
 
 def send_message(queue, message, body):
 	request = sqs_client.send_message(
@@ -66,7 +65,7 @@ def rekognition(filename, table_items):
 		    },
 		    SimilarityThreshold=90
 		)
-		if  response['FaceMatches']:
+		if response['FaceMatches']:
 			print(response['FaceMatches'][0]['Similarity'])
 			if response['FaceMatches'][0]['Similarity'] > 90:
 				return item['name']['S']

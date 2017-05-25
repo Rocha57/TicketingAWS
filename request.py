@@ -25,7 +25,6 @@ request = sqs_client.send_message(
 )
 
 while True:
-		print(".")
 		message = sqs_client.receive_message(
 		    QueueUrl=output_queue.url,
 		    MessageAttributeNames=['response'],
@@ -33,9 +32,11 @@ while True:
 		    WaitTimeSeconds=1,
 		)
 		if 'Messages' in message:
+			remove = sqs_client.delete_message(QueueUrl=output_queue.url, ReceiptHandle = message['Messages'][0]['ReceiptHandle'])
 			if message['Messages'][0]['Body'] == "FAILED":
 				print("FAILED - Pay at the Window")
+				break
 			else:
-				print("Welcome "+ message['Messages'][0]['MessageAttributes']['response']['StringValue'])
-			remove = sqs_client.delete_message(QueueUrl=output_queue.url, ReceiptHandle = message['Messages'][0]['ReceiptHandle'])
-			break
+				print(message['Messages'][0]['MessageAttributes']['response']['StringValue'])
+				if (message['Messages'][0]['MessageAttributes']['response']['StringValue'] == "Automatic payment successful"):
+					break

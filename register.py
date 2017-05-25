@@ -7,10 +7,10 @@ table_name = 'project3'
 
 name = input('enter your name: ');
 filename = input('enter filename of your photograph: ');
-filename = 'photos/'+filename
+filename1 = 'photos/'+filename
 credit = input('enter your initial credit: ');
 
-s3.meta.client.upload_file(filename, bucket_name, filename);
+s3.meta.client.upload_file(filename1, bucket_name, filename);
 
 response = client_db.put_item(
 	TableName = table_name,
