@@ -21,7 +21,7 @@ def run():
 	while True:
 		message = sqs_client.receive_message(
 		    QueueUrl=input_queue.url,
-		    MessageAttributeNames=['Photo'],
+		    MessageAttributeNames=['Photo','cost'],
 		    MaxNumberOfMessages=1,
 		    WaitTimeSeconds=1,
 		)
@@ -29,11 +29,28 @@ def run():
 			remove = sqs_client.delete_message(QueueUrl=input_queue.url, ReceiptHandle = message['Messages'][0]['ReceiptHandle'])
 			table_items = client_db.scan(TableName=table_name)
 			name = rekognition(message['Messages'][0]['MessageAttributes']['Photo']['StringValue'], table_items)
+			cost = message['Messages'][0]['MessageAttributes']['cost']['StringValue']
+			print(cost)
 			if name == None:
 				send_message(output_queue, "ardeu", "FAILED")
 			else:
 				send_message(output_queue, "Welcome "+name, "SUCCESS")
-				send_message(payment_queue, name, "CHECK")
+				request = sqs_client.send_message(
+					QueueUrl = payment_queue.url,
+					MessageBody = "CHECK",
+					DelaySeconds = 10,
+					MessageAttributes = {
+						'response' : {
+							'StringValue': name,
+							'DataType': 'String'
+						},
+						'cost' : {
+							'StringValue': cost,
+							'DataType': 'Number'
+						}
+					}
+				)
+				#send_message(payment_queue, name, "CHECK")
 
 def send_message(queue, message, body):
 	request = sqs_client.send_message(

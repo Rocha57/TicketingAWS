@@ -9,6 +9,7 @@ input_queue = sqs.get_queue_by_name(QueueName='project3_input')
 output_queue = sqs.get_queue_by_name(QueueName='project3_output')
 
 filename = input('enter filename of your photograph: ');
+cost = input('enter the value: ')
 filename1 = 'photos/'+filename
 s3.meta.client.upload_file(filename1, bucket_name, filename);
 
@@ -20,6 +21,10 @@ request = sqs_client.send_message(
 		'Photo' : {
 			'StringValue': filename,
 			'DataType': 'String'
+		},
+		'cost' : {
+			'StringValue': cost,
+			'DataType': 'Number'
 		}
 	}
 )

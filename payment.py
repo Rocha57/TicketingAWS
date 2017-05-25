@@ -1,7 +1,5 @@
 import boto3
 
-cost = '5'
-
 sqs = boto3.resource('sqs')
 sqs_client = boto3.client('sqs')
 
@@ -15,14 +13,16 @@ def run():
 	while True:
 		message = sqs_client.receive_message(
 		    QueueUrl=payment_queue.url,
-		    MessageAttributeNames=['response'],
+		    MessageAttributeNames=['response', 'cost'],
 		    MaxNumberOfMessages=1,
 		    WaitTimeSeconds=1,
 		)
 		if 'Messages' in message:
 			print("Paying")
+			print(message)
 			remove = sqs_client.delete_message(QueueUrl=payment_queue.url, ReceiptHandle = message['Messages'][0]['ReceiptHandle'])
 			user = message['Messages'][0]['MessageAttributes']['response']['StringValue']
+			cost = message['Messages'][0]['MessageAttributes']['cost']['StringValue']
 			response = client_db.get_item(
 				TableName = table_name,
 				Key = {
