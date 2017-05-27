@@ -1,0 +1,54 @@
+{
+  "Comment": "TicketingAWS",
+  "StartAt": "Authentication",
+  "States": {
+
+    "Authentication": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-west-1:124607185617:function:authentication",
+      "Next": "CheckAuthentication"
+    },
+    
+    "CheckAuthentication": {
+      "Type" : "Choice",
+      "Choices": [
+        {
+          "Variable": "$.correct",
+          "NumericEquals": 1,
+          "Next": "CalculateCredit"
+        }
+      ],
+      "Default": "ManualPayment"
+    },
+    
+    "CalculateCredit": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:eu-west-1:124607185617:function:calculateCredit",
+      "Next": "CheckCredit"
+    },
+
+    "CheckCredit": {
+      "Type" : "Choice",
+      "Choices": [
+        {
+          "Variable": "$.correct",
+          "NumericEquals": 1,
+          "Next": "AutomaticPayment"
+        }
+      ],
+      "Default": "ManualPayment"
+    },
+    
+    "AutomaticPayment": {
+      "Type" : "Pass",
+      "Result": "Automatic payment successful",
+      "End": true
+    },
+
+    "ManualPayment": {
+      "Type": "Pass",
+      "Result": "FAILED - Pay at the Window",
+      "End": true
+    }
+  }
+}
