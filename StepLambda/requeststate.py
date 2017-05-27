@@ -25,7 +25,7 @@ while True:
 		if result['status'] == 'RUNNING':
 			pass
 		else:
-			print(result['output'])
+			print(result['output'][1:-1])
 			break
 	except:
 		print("ardeu")
