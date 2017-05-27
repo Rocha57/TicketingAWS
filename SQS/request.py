@@ -16,7 +16,6 @@ s3.meta.client.upload_file(filename1, bucket_name, filename);
 request = sqs_client.send_message(
 	QueueUrl = input_queue.url,
 	MessageBody = 'request',
-	DelaySeconds = 10,
 	MessageAttributes = {
 		'Photo' : {
 			'StringValue': filename,

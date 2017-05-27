@@ -39,7 +39,6 @@ def run():
 				request = sqs_client.send_message(
 					QueueUrl = payment_queue.url,
 					MessageBody = "CHECK",
-					DelaySeconds = 10,
 					MessageAttributes = {
 						'response' : {
 							'StringValue': name,

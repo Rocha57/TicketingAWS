@@ -19,7 +19,6 @@ def run():
 		)
 		if 'Messages' in message:
 			print("Paying")
-			print(message)
 			remove = sqs_client.delete_message(QueueUrl=payment_queue.url, ReceiptHandle = message['Messages'][0]['ReceiptHandle'])
 			user = message['Messages'][0]['MessageAttributes']['response']['StringValue']
 			cost = message['Messages'][0]['MessageAttributes']['cost']['StringValue']
@@ -57,7 +56,6 @@ def send_message(queue, message, body):
 	request = sqs_client.send_message(
 		QueueUrl = queue.url,
 		MessageBody = body,
-		DelaySeconds = 10,
 		MessageAttributes = {
 			'response' : {
 				'StringValue': message,
