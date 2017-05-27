@@ -1,5 +1,6 @@
 import boto3
 
+boto3.setup_default_session(region_name='eu-west-1')
 sqs = boto3.resource('sqs')
 sqs_client = boto3.client('sqs')
 
